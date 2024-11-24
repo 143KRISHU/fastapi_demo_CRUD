@@ -2,17 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .dbDependency import get_db_dependency
 from ..Models import EmployeeTable  # SQLAlchemy model for emp_tb
-from ..schemas import EmployeeBase, EmployeeUpdate  # Pydantic Schema
+from ..schemas import EmployeeBase  # Pydantic Schema
 
 emp_router = APIRouter(prefix="/employee", tags=["Employee Table"])
 
-#show all employee
+# show all employee
+
+
 @emp_router.get('/')
-def show_all_employee(db:Session=Depends(get_db_dependency)):
+def show_all_employee(db: Session = Depends(get_db_dependency)):
     employees = db.query(EmployeeTable).all()
     return employees
 
 # adding new Employee In the Database
+
+
 @emp_router.post("/add")
 def add_employee(employee: EmployeeBase, db: Session = Depends(get_db_dependency)):
     if employee.dept_id == 0:
@@ -34,12 +38,15 @@ def add_employee(employee: EmployeeBase, db: Session = Depends(get_db_dependency
             db.add(new_employee)
             db.commit()
             db.refresh(new_employee)
-            return {"Message" : f"The New Employee IS added have employee ID = {new_employee.emp_id}"}
+            return {"Message": f"The New Employee IS added have employee ID = {new_employee.emp_id}"}
         except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+            raise HTTPException(
+                status_code=500, detail=f"Unexpected error: {e}")
 
 # Reading the Employee Via Employee ID
+
+
 @emp_router.get("/{emp_id}")
 def get_employee(emp_id: int, db: Session = Depends(get_db_dependency)):
     employee = db.query(EmployeeTable).filter(
@@ -49,8 +56,10 @@ def get_employee(emp_id: int, db: Session = Depends(get_db_dependency)):
     return employee
 
 # Updating the Employee Detail
+
+
 @emp_router.put("/{emp_id}")
-def update_employee(emp_id: int, employee: EmployeeUpdate, db: Session = Depends(get_db_dependency)):
+def update_employee(emp_id: int, employee: EmployeeBase, db: Session = Depends(get_db_dependency)):
     if employee.dept_id == 0:
         raise HTTPException(
             status_code=400, detail="Department Id Should not be 0")
@@ -65,12 +74,16 @@ def update_employee(emp_id: int, employee: EmployeeUpdate, db: Session = Depends
         raise HTTPException(
             status_code=400, detail="Enter the Valid 10 digit Mobile Number")
     else:
-        existing_employee = db.query(EmployeeTable).filter(
-            EmployeeTable.emp_id == emp_id).first()
-        if not existing_employee:
-            raise HTTPException(status_code=404, detail="Employee not found")
-        for key, value in employee.dict(exclude_unset=True).items():
-            setattr(existing_employee, key, value)
-        db.commit()
-        db.refresh(existing_employee)
-        return existing_employee
+        try:
+            existing_employee = db.query(EmployeeTable).filter(
+                EmployeeTable.emp_id == emp_id).first()
+            if not existing_employee:
+                raise HTTPException(status_code=404, detail="Employee not found")
+            for key, value in employee.dict(exclude_unset=True).items():
+                setattr(existing_employee, key, value)
+            db.commit()
+            db.refresh(existing_employee)
+            return existing_employee
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500,detail=f'Some Internal Server Error: {e}')

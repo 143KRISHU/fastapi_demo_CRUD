@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .core import settings
-from .routers import emp_router,dept_router
+from .routers import emp_router,dept_router,mngr_router
 
 
 app = FastAPI()
@@ -10,6 +10,9 @@ app.include_router(emp_router)
 
 # Department Router
 app.include_router(dept_router)
+
+#Manager Router
+app.include_router(mngr_router)
 
 
 @app.get('/')

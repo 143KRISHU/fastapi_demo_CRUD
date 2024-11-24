@@ -1,1 +1,1 @@
-from .pydanticModel import EmployeeBase,EmployeeUpdate,DepartmentBase,Managerbase
+from .pydanticModel import EmployeeBase,DepartmentBase,Managerbase

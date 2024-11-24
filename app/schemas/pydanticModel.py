@@ -7,12 +7,6 @@ class EmployeeBase(BaseModel):
     emp_mobile: int = Field(..., description="Mobile number of the employee")
     dept_id: int | None = Field(None, description="Department ID")
 
-# Schema for updating an employee
-class EmployeeUpdate(BaseModel):
-    emp_name: str | None = Field(None, max_length=100, description="Name of the employee")
-    emp_email: EmailStr | None = Field(None, description="Email of the employee")
-    emp_mobile: int | None = Field(None, description="Mobile number of the employee")
-    dept_id: int | None = Field(None, description="Department ID")
 
 # Base Schema for department attributes
 class DepartmentBase(BaseModel):
